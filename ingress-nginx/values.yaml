@@ -1,0 +1,12 @@
+ingress-nginx:
+  controller:
+    ingressClass: nginx
+    ingressClassResource:
+      name: nginx
+      enabled: true
+      default: true
+      controllerValue: k8s.io/ingress-nginx
+    service:
+      type: LoadBalancer
+    config:
+      proxy-body-size: "100m"

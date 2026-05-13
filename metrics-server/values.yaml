@@ -1,0 +1,26 @@
+metrics-server:
+  global:
+    security:
+      allowInsecureImages: true
+  image:
+    registry: registry.k8s.io
+    repository: metrics-server/metrics-server
+    tag: v0.8.0
+  command:
+  - /metrics-server
+  args:
+  - --kubelet-insecure-tls
+  - --kubelet-preferred-address-types=InternalIP
+  - --cert-dir=/tmp
+  - --secure-port=8443
+  - --metric-resolution=15s
+  apiService:
+    create: true
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 100m
+  livenessProbe:
+    initialDelaySeconds: 60
+  readinessProbe:
+    initialDelaySeconds: 60
