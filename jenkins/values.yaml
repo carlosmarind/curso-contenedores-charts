@@ -104,6 +104,5 @@ jenkins:
       path: /
       ingressClassName: nginx
       hostName: jenkins.local
-      tls:
-      - hosts:
-        - jenkins.local
+  agent:
+    skipTlsVerify: true
