@@ -2,6 +2,7 @@ jenkins:
   controller:
     installPlugins:
     - kubernetes:latest
+    - kubernetes-cli:latest
     - ionicons-api:latest
     - cloudbees-folder:latest
     - antisamy-markup-formatter:latest
@@ -104,5 +105,8 @@ jenkins:
       path: /
       ingressClassName: nginx
       hostName: jenkins.local
+    sidecards:
+      configAutoReload:
+        skipTlsVerify: true
   agent:
     skipTlsVerify: true
