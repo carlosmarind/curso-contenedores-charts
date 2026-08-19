@@ -4,7 +4,7 @@ Este repositorio reúne los charts Helm usados en el curso de contenedores.
 
 ## Objetivo
 
-Centralizar configuraciones de despliegue sobre Kubernetes usando Helm. Actualmente, el repositorio incluye charts para Ingress NGINX, Metrics Server y Jenkins a partir de dependencias oficiales.
+Centralizar configuraciones de despliegue sobre Kubernetes usando Helm. Actualmente, el repositorio incluye charts para Ingress NGINX, Metrics Server, Jenkins y monitoreo con Prometheus, Grafana, Loki y Alloy a partir de dependencias oficiales.
 
 ## Helm
 
@@ -41,7 +41,12 @@ Una vez instalado, Helm se usa en este repositorio para gestionar los charts inc
 │   ├── Chart.lock
 │   ├── values.yaml
 │   └── charts/
-└── jenkins/
+├── jenkins/
+│   ├── Chart.yaml
+│   ├── Chart.lock
+│   ├── values.yaml
+│   └── charts/
+└── monitoring/
     ├── Chart.yaml
     ├── Chart.lock
     ├── values.yaml
@@ -55,8 +60,9 @@ Los charts deben instalarse en este orden:
 1. Ingress NGINX.
 2. Metrics Server.
 3. Jenkins.
+4. Prometheus y Grafana.
 
-Ingress NGINX debe instalarse primero porque Jenkins usa `ingressClassName: nginx` para exponer su interfaz web.
+Ingress NGINX debe instalarse primero porque Jenkins, Grafana, Prometheus y Alertmanager usan `ingressClassName: nginx` para exponer sus interfaces web.
 
 ## Ingress NGINX
 
@@ -274,3 +280,112 @@ En Linux y macOS, edita `/etc/hosts`.
 
 En Windows, edita `C:\Windows\System32\drivers\etc\hosts` con permisos de administrador.
 
+## Prometheus y Grafana
+
+Este chart instala una plataforma de monitoreo y observabilidad compuesta por Prometheus, Grafana, Alertmanager, Loki y Alloy. Prometheus recopila métricas del clúster, Grafana permite visualizarlas, Loki almacena logs y Alloy los recolecta desde los pods de Kubernetes.
+
+### Despliegue de Prometheus y Grafana
+
+#### 1) Entrar al chart
+
+```bash
+cd monitoring
+```
+
+#### 2) Agregar los repositorios oficiales (si no existen)
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+```
+
+#### 3) Descargar dependencias del chart
+
+```bash
+helm dependency update .
+```
+
+#### 4) Instalar o actualizar
+
+```bash
+helm upgrade --install monitoring . -n monitoring --create-namespace
+```
+
+Este comando crea el namespace `monitoring` si no existe e instala o actualiza la release `monitoring` usando la configuración definida en `values.yaml`.
+
+#### 5) Verificar recursos
+
+```bash
+kubectl get pods -n monitoring
+kubectl get ingress -n monitoring
+```
+
+### Credenciales iniciales de Grafana
+
+El usuario predeterminado de Grafana es:
+
+```text
+admin
+```
+
+Para obtener la contraseña inicial:
+
+```bash
+kubectl get secret monitoring-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode && echo
+```
+
+### Comandos útiles
+
+```bash
+helm uninstall monitoring -n monitoring
+helm get values monitoring -n monitoring
+kubectl get prometheus -n monitoring
+kubectl get alertmanager -n monitoring
+```
+
+### Configuración de Prometheus y Grafana
+
+La configuración principal del chart está en `monitoring/values.yaml`.
+
+Algunos valores relevantes del estado actual son:
+
+- `kube-prometheus-stack.grafana.ingress.enabled: true`
+- `kube-prometheus-stack.grafana.ingress.hosts` con `grafana.local`
+- `kube-prometheus-stack.prometheus.ingress.enabled: true`
+- `kube-prometheus-stack.prometheus.ingress.hosts` con `prometheus.local`
+- `kube-prometheus-stack.alertmanager.ingress.hosts` con `alertmanager.local`
+- Loki configurado en modo `SingleBinary` con una réplica.
+- MinIO habilitado como almacenamiento de objetos para Loki.
+- Alloy configurado para recolectar los logs de los pods y enviarlos a Loki.
+- Loki agregado como fuente de datos adicional en Grafana.
+
+### Acceso local por dominio
+
+El archivo `values.yaml` configura ingresos para las interfaces web de monitoreo. Una vez desplegadas, quedarán disponibles en:
+
+```text
+http://grafana.local
+http://prometheus.local
+http://alertmanager.local
+```
+
+Para acceder desde el navegador, registra estos dominios en el archivo `hosts` de tu sistema operativo.
+
+Primero identifica la IP o dirección de entrada de los ingress:
+
+```bash
+kubectl get ingress -n monitoring
+```
+
+Si estás trabajando en un entorno local, normalmente bastará con entradas como estas:
+
+```text
+127.0.0.1 grafana.local
+127.0.0.1 prometheus.local
+127.0.0.1 alertmanager.local
+```
+
+En Linux y macOS, edita `/etc/hosts`.
+
+En Windows, edita `C:\Windows\System32\drivers\etc\hosts` con permisos de administrador.
