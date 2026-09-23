@@ -98,6 +98,7 @@ jenkins:
     - configuration-as-code:latest
     installLatestPlugins: true
     installLatestSpecifiedPlugins: true
+    initializeOnce: true
     #admin:
     # password: <your-password>
     ingress:
