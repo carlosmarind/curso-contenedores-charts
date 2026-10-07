@@ -1,29 +1,37 @@
 # CloudNativePG
 
-CloudNativePG instala un operador para gestionar clústeres PostgreSQL. La configuración incluye dos réplicas del operador, versión 1.27.0 y creación de RBAC.
+[Guía general y requisitos](../README.md)
 
-### Despliegue de CloudNativePG
+CloudNativePG instala un operador para gestionar clústeres PostgreSQL. La configuración incluye dos réplicas del operador, versión 1.30.1 y creación de RBAC.
 
-#### 1) Entrar al chart
+## Dependencias
+
+| Chart | Versión |
+| --- | --- |
+| cloudnative-pg | 0.29.1 |
+
+## Despliegue de CloudNativePG
+
+### 1) Entrar al chart
 
 ```bash
 cd cloudnative-pg
 ```
 
-#### 2) Agregar el repositorio oficial (si no existe)
+### 2) Agregar el repositorio oficial (si no existe)
 
 ```bash
 helm repo add cnpg https://cloudnative-pg.io/charts/
 helm repo update
 ```
 
-#### 3) Descargar dependencias del chart
+### 3) Descargar dependencias del chart
 
 ```bash
 helm dependency build .
 ```
 
-#### 4) Instalar o actualizar
+### 4) Instalar o actualizar
 
 ```bash
 helm upgrade --install cloudnative-pg . -n cnpg-system --create-namespace
@@ -31,21 +39,21 @@ helm upgrade --install cloudnative-pg . -n cnpg-system --create-namespace
 
 Este comando instala o actualiza la release `cloudnative-pg` en el namespace `cnpg-system` usando la configuración definida en `values.yaml`.
 
-#### 5) Verificar recursos
+### 5) Verificar recursos
 
 ```bash
 kubectl get pods -n cnpg-system
 kubectl get crd clusters.postgresql.cnpg.io databases.postgresql.cnpg.io
 ```
 
-### Comandos útiles
+## Comandos útiles
 
 ```bash
 helm uninstall cloudnative-pg -n cnpg-system
 helm get values cloudnative-pg -n cnpg-system
 ```
 
-### Crear el clúster PostgreSQL de ejemplo
+## Crear el clúster PostgreSQL de ejemplo
 
 El chart instala el operador. Los archivos de `postgres/` se aplican por separado y no forman parte de la instalación Helm.
 
@@ -99,6 +107,10 @@ Comprueba en el estado de `db-sonar` que la base se haya creado correctamente. E
 
 `monitoring.enablePodMonitor` está deshabilitado para que el ejemplo pueda instalarse sin el stack de monitoreo. Después de instalar `monitoring`, puedes habilitarlo en `postgres/cluster.yaml` y volver a aplicar el archivo.
 
-El ejemplo `db-sonar` permite practicar la creación de bases. SonarQube conserva su PostgreSQL incluida en el chart y no se conecta automáticamente a esta base.
+La base `db-sonar` se utiliza como base externa de SonarQube. Instálala antes de SonarQube y copia la contraseña del rol `sonar-user` al Secret JDBC de su namespace, siguiendo la [guía de SonarQube](../sonarqube/readme.md).
 
 Desinstalar el operador no equivale a eliminar los clústeres PostgreSQL ni sus datos. Revisa los recursos y respaldos antes de retirar el operador o eliminar recursos persistentes.
+
+## Comprobar funcionamiento
+
+La comprobación del operador y de los recursos PostgreSQL se describe en [Crear el clúster PostgreSQL de ejemplo](#crear-el-clúster-postgresql-de-ejemplo).
