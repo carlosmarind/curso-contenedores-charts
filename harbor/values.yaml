@@ -1,0 +1,107 @@
+harbor:
+  # harbor-values.yaml
+  # Configuración de Harbor para el entorno local del curso
+
+  expose:
+    type: ingress
+    tls:
+      enabled: false # HTTP para el entorno local del curso
+    ingress:
+      className: "nginx" # o tu ingress class
+      annotations:
+        ingress.kubernetes.io/ssl-redirect: "false"
+        nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      hosts:
+        core: harbor.devops.cl # Cambiar por tu dominio
+  # URL externa que usarán los clientes Docker
+  externalURL: http://harbor.devops.cl # Cambiar por tu dominio
+
+  # Configuración de persistencia
+  persistence:
+    enabled: true
+    # Define storage class si tienes uno específico
+    # storageClass: "fast-ssd"
+    persistentVolumeClaim:
+      registry:
+        size: 50Gi
+      database:
+        size: 5Gi
+      redis:
+        size: 1Gi
+      trivy:
+        size: 5Gi
+      jobservice:
+        jobLog:
+          size: 1Gi
+  trivy:
+    enabled: true # Para escaneo de vulnerabilidades
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 200m
+      limits:
+        memory: 1Gi
+        cpu: 500m
+  # Configuración de base de datos interna
+  database:
+    type: internal
+    # Si prefieres usar PostgreSQL externo:
+    # type: external
+    # external:
+    #   host: "postgresql.default.svc.cluster.local"
+    #   port: "5432"
+    #   username: "harbor"
+    #   password: "harbor-password"
+    #   coreDatabase: "registry"
+
+    # Configuración de Redis interno
+  redis:
+    type: internal
+    # Si prefieres usar Redis externo:
+    # type: external
+    # external:
+    #   addr: "redis.default.svc.cluster.local:6379"
+
+    # Configuración de recursos (ajustar según tu cluster)
+  core:
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+
+  registry:
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+
+  chartmuseum:
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 256Mi
+        cpu: 200m
+  # Configuración de métricas (opcional)
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: false # Habilitar si tienes Prometheus Operator
+
+  # Configuración de log level
+  logLevel: info
+  jobservice:
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 500m

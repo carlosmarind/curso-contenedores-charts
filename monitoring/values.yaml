@@ -17,50 +17,40 @@ kube-prometheus-stack:
       enabled: true
       ingressClassName: nginx
       hosts:
-      - grafana.local
-      tls:
-      - secretName: ""
-        hosts:
-        - grafana.local
+      - grafana.devops.cl
+      tls: []
   prometheus:
     ingress:
       enabled: true
       ingressClassName: nginx
       hosts:
-      - prometheus.local
-      tls:
-      - secretName: ""
-        hosts:
-        - prometheus.local
+      - prometheus.devops.cl
+      tls: []
   alertmanager:
     ingress:
       enabled: true
       ingressClassName: nginx
       hosts:
-      - alertmanager.local
-      tls:
-      - secretName: ""
-        hosts:
-        - alertmanager.local
+      - alertmanager.devops.cl
+      tls: []
   thanosRuler:
     ingress:
       enabled: true
       ingressClassName: nginx
       hosts:
-      - thanos.local
-      tls:
-      - secretName: ""
-        hosts:
-        - thanos.local
+      - thanos.devops.cl
+      tls: []
 loki:
   loki:
     commonConfig:
       replication_factor: 1
+    storage:
+      type: filesystem
     schemaConfig:
       configs:
       - from: "2024-04-01"
         store: tsdb
-        object_store: s3
+        object_store: filesystem
         schema: v13
         index:
           prefix: loki_index_
@@ -74,12 +64,15 @@ loki:
       enable_api: true
 
   minio:
-    enabled: true
+    enabled: false
 
   deploymentMode: SingleBinary
 
   singleBinary:
     replicas: 1
+    persistence:
+      enabled: true
+      enableStatefulSetAutoDeletePVC: false
 
   # Zero out replica counts of other deployment modes
   backend:

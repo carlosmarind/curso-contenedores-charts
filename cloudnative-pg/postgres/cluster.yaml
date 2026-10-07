@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: databases
+  labels:
+    name: databases
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: main-postgres
+  namespace: databases
+spec:
+  instances: 3
+  imageName: ghcr.io/cloudnative-pg/postgresql:15
+  storage:
+    size: 20Gi
+  bootstrap:
+    initdb:
+      database: postgres
+      owner: admin
+      secret:
+        name: admin-secret
+  monitoring:
+    # Habilitar después de instalar monitoring y sus CRD.
+    enablePodMonitor: false
+  managed:
+    roles:
+    - name: sonar-user
+      login: true
+      passwordSecret:
+        name: db-sonar-secret

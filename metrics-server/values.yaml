@@ -5,20 +5,23 @@ metrics-server:
   image:
     registry: registry.k8s.io
     repository: metrics-server/metrics-server
-    tag: v0.8.0
+    tag: v0.9.0
   command:
   - /metrics-server
   args:
-  - --kubelet-insecure-tls
-  - --kubelet-preferred-address-types=InternalIP
   - --cert-dir=/tmp
-  - --secure-port=8443
+  - --secure-port=10250
+  - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+  - --kubelet-use-node-status-port
   - --metric-resolution=15s
+  - --kubelet-insecure-tls
   apiService:
     create: true
+  containerPorts:
+    https: 10250
   resources:
     requests:
-      memory: 64Mi
+      memory: 200Mi
       cpu: 100m
   livenessProbe:
     initialDelaySeconds: 60

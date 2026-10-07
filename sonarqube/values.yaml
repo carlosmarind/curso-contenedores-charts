@@ -1,0 +1,16 @@
+sonarqube:
+  community:
+    enabled: true
+  ingress:
+    enabled: true
+    hosts:
+    - name: sonar.devops.cl
+      path: "/"
+    tls: []
+    ingressClassName: nginx
+  monitoringPasscodeSecretName: sonarqube-monitoring
+  monitoringPasscodeSecretKey: passcode
+  postgresql:
+    image:
+      # La etiqueta PostgreSQL 11 de la dependencia ya no existe en el registro.
+      tag: 15.9.0-debian-12-r0

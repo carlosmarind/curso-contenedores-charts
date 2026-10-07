@@ -1,0 +1,6 @@
+cert-manager:
+  crds:
+    enabled: true
+  config:
+    featureGates:
+      ACMEHTTP01IngressPathTypeExact: false
