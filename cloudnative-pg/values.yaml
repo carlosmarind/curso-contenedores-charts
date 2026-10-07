@@ -1,6 +1,4 @@
 cloudnative-pg:
   replicaCount: 2
-  image:
-    tag: 1.27.0 # versión del operador
   rbac:
     create: true

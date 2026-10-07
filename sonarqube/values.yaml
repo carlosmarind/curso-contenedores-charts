@@ -10,7 +10,9 @@ sonarqube:
     ingressClassName: nginx
   monitoringPasscodeSecretName: sonarqube-monitoring
   monitoringPasscodeSecretKey: passcode
-  postgresql:
-    image:
-      # La etiqueta PostgreSQL 11 de la dependencia ya no existe en el registro.
-      tag: 15.9.0-debian-12-r0
+  jdbcOverwrite:
+    enabled: true
+    jdbcUrl: "jdbc:postgresql://main-postgres-rw.databases.svc.cluster.local:5432/db-sonar?sslmode=require"
+    jdbcUsername: sonar-user
+    jdbcSecretName: sonarqube-jdbc
+    jdbcSecretPasswordKey: password
